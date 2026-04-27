@@ -5,7 +5,7 @@
  * Self-contained widget: одним <script src="..."> подключается на странице,
  * сам инжектит CSS, рендерит DOM, обрабатывает события.
  *
- * Версия: 1.0.0
+ * Версия: 1.0.1
  * Репо: https://github.com/Starshina21101/m3-chat-widget
  */
 (function () {
@@ -30,12 +30,12 @@
 
   const CSS = `
     .m3-chat-button { position: fixed; bottom: 20px; right: 20px; width: 70px; height: 70px;
-      background: linear-gradient(135deg, #1e3c72, #2a5298, #007bff); border-radius: 50%;
-      cursor: pointer; z-index: 2147483000; box-shadow: 0 6px 25px rgba(30,60,114,.5);
+      background: linear-gradient(135deg, #dc1f25, #b41c21); border-radius: 50%;
+      cursor: pointer; z-index: 2147483000; box-shadow: 0 6px 25px rgba(220,31,37,.45);
       display: flex; align-items: center; justify-content: center;
       transition: transform .3s cubic-bezier(.4,0,.2,1), box-shadow .3s;
       border: 3px solid rgba(255,255,255,.2); font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
-    .m3-chat-button:hover { transform: scale(1.08); box-shadow: 0 10px 30px rgba(30,60,114,.7); }
+    .m3-chat-button:hover { transform: scale(1.08); box-shadow: 0 10px 30px rgba(220,31,37,.6); }
     .m3-logo-text { font-size: 28px; font-weight: 900; color: #fff;
       text-shadow: 0 2px 4px rgba(0,0,0,.3); letter-spacing: 1px; }
     .m3-chat-badge { position: absolute; top: -8px; right: -8px; background: #ff4757; color: #fff;
@@ -47,7 +47,7 @@
     .m3-chat-widget { position: fixed; bottom: 110px; right: 20px; width: 420px; height: 600px;
       background: #fff; border-radius: 20px; box-shadow: 0 15px 50px rgba(0,0,0,.2);
       display: none; flex-direction: column; z-index: 2147483001; overflow: hidden;
-      border: 1px solid rgba(30,60,114,.15);
+      border: 1px solid rgba(220,31,37,.18);
       font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
     @media (max-width: 768px) {
       .m3-chat-widget { bottom: 0; right: 0; left: 0; top: 0; width: 100vw; height: 100vh;
@@ -56,7 +56,7 @@
       .m3-logo-text { font-size: 24px; }
     }
 
-    .m3-chat-header { background: linear-gradient(135deg, #1e3c72, #2a5298, #007bff); color: #fff;
+    .m3-chat-header { background: linear-gradient(135deg, #dc1f25, #b41c21); color: #fff;
       padding: 18px 20px; display: flex; justify-content: space-between; align-items: center;
       position: relative; }
     .m3-header-left { display: flex; align-items: center; gap: 12px; z-index: 1; }
@@ -64,14 +64,22 @@
     .m3-header-text { display: flex; flex-direction: column; }
     .m3-chat-title { font-weight: 700; font-size: 18px; letter-spacing: -.3px;
       text-shadow: 0 1px 3px rgba(0,0,0,.25); }
-    .m3-chat-status { font-size: 12px; opacity: .92; font-weight: 400; margin-top: 2px; }
+    .m3-chat-status { font-size: 12px; opacity: .92; font-weight: 400; margin-top: 2px;
+      display: flex; align-items: center; gap: 6px; }
+    .m3-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ecc71;
+      box-shadow: 0 0 0 2px rgba(46,204,113,.25); flex-shrink: 0;
+      animation: m3-status-pulse 2s infinite; }
+    .m3-status-dot.offline { background: #b0b3b8; box-shadow: 0 0 0 2px rgba(176,179,184,.2);
+      animation: none; }
+    @keyframes m3-status-pulse { 0%,100% { box-shadow: 0 0 0 2px rgba(46,204,113,.25); }
+      50% { box-shadow: 0 0 0 5px rgba(46,204,113,.05); } }
     .m3-chat-controls { display: flex; gap: 8px; z-index: 1; }
-    .m3-control-btn { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.25);
-      color: #fff; cursor: pointer; padding: 8px; border-radius: 10px;
-      transition: background .2s, transform .2s; width: 38px; height: 38px;
+    .m3-control-btn { background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.22);
+      color: #fff; cursor: pointer; padding: 0; border-radius: 8px;
+      transition: background .2s, transform .2s; width: 28px; height: 28px;
       display: flex; align-items: center; justify-content: center; }
-    .m3-control-btn:hover { background: rgba(255,255,255,.3); transform: translateY(-1px); }
-    .m3-control-btn svg { width: 18px; height: 18px; fill: currentColor; }
+    .m3-control-btn:hover { background: rgba(255,255,255,.28); transform: translateY(-1px); }
+    .m3-control-btn svg { width: 14px; height: 14px; fill: currentColor; }
 
     .m3-chat-messages { flex: 1; overflow-y: auto; padding: 20px; background: #fafbfc;
       -webkit-overflow-scrolling: touch; }
@@ -85,8 +93,8 @@
       white-space: pre-wrap; }
     .m3-message.bot .m3-message-content { background: #fff; border: 1px solid #e3e5e8;
       color: #2c3e50; border-bottom-left-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-    .m3-message.user .m3-message-content { background: linear-gradient(135deg, #1e3c72, #2a5298);
-      color: #fff; border-bottom-right-radius: 4px; box-shadow: 0 3px 12px rgba(30,60,114,.35); }
+    .m3-message.user .m3-message-content { background: linear-gradient(135deg, #dc1f25, #b41c21);
+      color: #fff; border-bottom-right-radius: 4px; box-shadow: 0 3px 12px rgba(220,31,37,.35); }
     .m3-message-time { font-size: 11px; color: #999; margin-top: 6px; text-align: right;
       font-weight: 500; }
     .m3-message.user .m3-message-time { color: rgba(255,255,255,.85); }
@@ -95,8 +103,8 @@
     .m3-input-group { display: flex; align-items: flex-end; background: #f8f9fa;
       border: 2px solid #e8eaed; border-radius: 25px; padding: 7px;
       transition: border-color .25s, background .25s, box-shadow .25s; min-height: 52px; }
-    .m3-input-group:focus-within { border-color: #2a5298; background: #fff;
-      box-shadow: 0 0 0 4px rgba(42,82,152,.12); }
+    .m3-input-group:focus-within { border-color: #dc1f25; background: #fff;
+      box-shadow: 0 0 0 4px rgba(220,31,37,.14); }
     .m3-input-field { flex: 1; border: 0; background: transparent; padding: 11px 16px; outline: 0;
       font-size: 15px; line-height: 1.4; resize: none; font-family: inherit; min-height: 22px;
       max-height: 130px; overflow-y: auto; -webkit-appearance: none; border-radius: 0;
@@ -106,29 +114,29 @@
     }
     .m3-input-field:disabled { opacity: .6; cursor: not-allowed; }
 
-    .m3-send-btn { background: linear-gradient(135deg, #1e3c72, #2a5298); border: 0; color: #fff;
+    .m3-send-btn { background: linear-gradient(135deg, #dc1f25, #b41c21); border: 0; color: #fff;
       width: 46px; height: 46px; border-radius: 50%; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: transform .2s, box-shadow .2s; flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(30,60,114,.3); }
-    .m3-send-btn:hover { transform: scale(1.08); box-shadow: 0 4px 12px rgba(30,60,114,.4); }
+      box-shadow: 0 2px 8px rgba(220,31,37,.3); }
+    .m3-send-btn:hover { transform: scale(1.08); box-shadow: 0 4px 12px rgba(220,31,37,.4); }
     .m3-send-btn:active { transform: scale(.92); }
     .m3-send-btn:disabled { background: #bbb; cursor: not-allowed; transform: none; box-shadow: none; }
     .m3-send-btn svg { width: 22px; height: 22px; fill: currentColor; }
 
     .m3-quick-buttons { display: flex; gap: 8px; margin-top: 8px; padding: 0 4px; }
-    .m3-quick-btn { flex: 1; background: #fff; border: 1.5px solid #2a5298; color: #2a5298;
+    .m3-quick-btn { flex: 1; background: #fff; border: 1.5px solid #dc1f25; color: #dc1f25;
       padding: 8px 10px; border-radius: 10px; font-size: 13px; font-weight: 600;
       cursor: pointer; transition: background .2s, color .2s, transform .2s; white-space: nowrap;
       font-family: inherit; }
-    .m3-quick-btn:hover { background: #2a5298; color: #fff; transform: translateY(-1px); }
+    .m3-quick-btn:hover { background: #dc1f25; color: #fff; transform: translateY(-1px); }
     .m3-quick-btn:active { transform: translateY(0); }
     .m3-quick-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 
     .m3-typing-indicator { display: none; padding: 12px 20px; color: #666; font-style: italic;
       font-size: 14px; background: #fff; border-top: 1px solid #e8eaed; }
     .m3-typing-dots { display: inline-flex; align-items: center; gap: 4px; }
-    .m3-typing-dots span { width: 8px; height: 8px; border-radius: 50%; background: #2a5298;
+    .m3-typing-dots span { width: 8px; height: 8px; border-radius: 50%; background: #dc1f25;
       animation: m3-typing 1.4s infinite ease-in-out; }
     .m3-typing-dots span:nth-child(2) { animation-delay: .2s; }
     .m3-typing-dots span:nth-child(3) { animation-delay: .4s; }
@@ -141,8 +149,8 @@
 
     .m3-chat-messages::-webkit-scrollbar { width: 7px; }
     .m3-chat-messages::-webkit-scrollbar-track { background: transparent; }
-    .m3-chat-messages::-webkit-scrollbar-thumb { background: rgba(42,82,152,.35); border-radius: 4px; }
-    .m3-chat-messages::-webkit-scrollbar-thumb:hover { background: rgba(42,82,152,.55); }
+    .m3-chat-messages::-webkit-scrollbar-thumb { background: rgba(220,31,37,.35); border-radius: 4px; }
+    .m3-chat-messages::-webkit-scrollbar-thumb:hover { background: rgba(220,31,37,.55); }
   `;
 
   const SVG = {
@@ -266,11 +274,21 @@
       className: "m3-header-logo",
       attrs: { src: CONFIG.logoUrl, alt: "" },
     });
+    const statusDot = el("span", {
+      className: "m3-status-dot",
+      id: "m3StatusDot",
+      attrs: { "aria-hidden": "true" },
+    });
+    const statusText = el("span", { id: "m3StatusText", text: "Детейлинг СПб • Онлайн" });
+    const status = el("div", {
+      className: "m3-chat-status",
+      children: [statusDot, statusText],
+    });
     const text = el("div", {
       className: "m3-header-text",
       children: [
         el("div", { className: "m3-chat-title", text: "Эмка • Консультант М3" }),
-        el("div", { className: "m3-chat-status", text: "Детейлинг СПб • Онлайн 24/7" }),
+        status,
       ],
     });
     const left = el("div", {
@@ -411,7 +429,20 @@
         clearBtn: document.getElementById("m3ClearBtn"),
         closeBtn: document.getElementById("m3CloseBtn"),
         quickBtns: document.querySelectorAll(".m3-quick-btn"),
+        statusDot: document.getElementById("m3StatusDot"),
+        statusText: document.getElementById("m3StatusText"),
       };
+    },
+
+    _setOnline(isOnline) {
+      if (!this.els.statusDot) return;
+      if (isOnline) {
+        this.els.statusDot.classList.remove("offline");
+        this.els.statusText.textContent = "Детейлинг СПб • Онлайн";
+      } else {
+        this.els.statusDot.classList.add("offline");
+        this.els.statusText.textContent = "Детейлинг СПб • Не в сети";
+      }
     },
 
     _initIdentity() {
@@ -612,7 +643,9 @@
           (data && typeof data.response === "string" && data.response) ||
           'Извините, произошла ошибка. Попробуйте ещё раз или напишите "Оператор" для связи с менеджером.';
         this._renderMessage(reply, "bot");
+        this._setOnline(true);
       } catch (err) {
+        this._setOnline(false);
         if (err && err.name === "AbortError") {
           this._renderMessage(
             "Не дождалась ответа. Попробуйте ещё раз или напишите оператору: " +
