@@ -13,7 +13,7 @@ Self-contained JavaScript-виджет: один файл, одна строка
 Вставить **одну строку** перед закрывающим `</body>`:
 
 ```html
-<script defer src="https://cdn.jsdelivr.net/gh/Starshina21101/m3-chat-widget@main/m3-chat.js"></script>
+<script defer src="https://cdn.jsdelivr.net/gh/Starshina21101/m3-chat-widget@v1.0.1/m3-chat.js"></script>
 ```
 
 Виджет сам:
@@ -29,7 +29,7 @@ Self-contained JavaScript-виджет: один файл, одна строка
 Для боевого сайта рекомендуется не зависеть от внешнего CDN:
 
 ```bash
-gh release download v1.0.0 --pattern m3-chat.js
+gh release download v1.0.1 --pattern m3-chat.js
 # положить в /static/m3-chat.js на сервере
 ```
 
