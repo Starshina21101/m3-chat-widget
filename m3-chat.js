@@ -5,7 +5,7 @@
  * Self-contained widget: одним <script src="..."> подключается на странице,
  * сам инжектит CSS, рендерит DOM, обрабатывает события.
  *
- * Версия: 1.0.1
+ * Версия: 1.1.0
  * Репо: https://github.com/Starshina21101/m3-chat-widget
  */
 (function () {
@@ -15,6 +15,9 @@
 
   const CONFIG = {
     webhookUrl: "https://n8n.golubef.ru/webhook/chat-m3",
+    // Public widget token — отсекает наивных ботов и даёт ротацию через новый релиз.
+    // Криптозащиты не подразумевает (виден в DevTools любого браузера).
+    authToken: "m3w_v1_piyH7qN6q60oB-_EzBskoFn_qh5mNkVZ",
     fetchTimeoutMs: 30000,
     historyTtlMs: 24 * 60 * 60 * 1000,
     messageLimit: 30,
@@ -613,7 +616,10 @@
       try {
         const response = await fetch(CONFIG.webhookUrl, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + CONFIG.authToken,
+          },
           body: JSON.stringify({
             message: text,
             sessionId: this.sessionId,
